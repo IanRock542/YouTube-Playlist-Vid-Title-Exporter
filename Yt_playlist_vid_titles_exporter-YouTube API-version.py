@@ -3,8 +3,12 @@ from urllib.error import HTTPError
 from webbrowser import get
 from googleapiclient.discovery import build
 from datetime import datetime
+from tkinter import filedialog
 import googleapiclient.errors
 import os
+
+print("Choose the directory to save the text file to.")
+os.chdir(filedialog.askdirectory())
 
 api_key = os.environ.get('GOOGLE_API_KEY')
 now = datetime.now()
