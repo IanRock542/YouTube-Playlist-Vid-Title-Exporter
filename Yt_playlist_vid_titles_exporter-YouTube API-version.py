@@ -7,18 +7,29 @@ from tkinter import filedialog
 import googleapiclient.errors
 import os
 
-print("Choose the directory to save the text file to.")
-os.chdir(filedialog.askdirectory())
+def choose_dir() -> None:
+    """Lets user pick dir to save file to"""
 
-api_key = os.environ.get('GOOGLE_API_KEY')
-now = datetime.now()
+    print("Choose the directory to save the text file to.")
+    try:
+        os.chdir(filedialog.askdirectory())
+    except OSError: #except for user not picking a directory
+        dir = os.getcwd()
+        print("No directory chosen. Saving to current working directory: {0}".format(dir))
+
+api_key = os.environ.get('GOOGLE_API_KEY') #api key hidden in enviroment var
+youtube = build('youtube', 'v3', developerKey=api_key) #sets yt api version
+
+
+now = datetime.now() #time string to differntiate between playlists with the same title
 dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
-youtube = build('youtube', 'v3', developerKey=api_key)
 
-playlist_input = input("Enter a YouTube Playlist: ")
-playlist = playlist_input[38:]
 
-def get_titles(playlist_id, pl_titles):
+
+
+
+def get_titles(playlist_id: str, pl_titles: list) -> list:
+    """Gets video titles from a playlist and returns them in a list var"""
     try:
         request = youtube.playlistItems().list(
             part="snippet,contentDetails",
@@ -31,12 +42,12 @@ def get_titles(playlist_id, pl_titles):
         print("You did not enter a valid playlist.")
         exit(0)
     else:
-        for video in range(len(response['items'])):
+        for video in range(len(response['items'])): #items = videos in playlist
             pl_titles.append((response['items'][video]['snippet']['title']))
     
-        nextPageToken = response.get('nextPageToken')
+        nextPageToken = response.get('nextPageToken') #goes to next page of videos
 
-        while nextPageToken:
+        while nextPageToken: #runs until there are no more pages to loop through
             response = youtube.playlistItems().list(
                 part="snippet,contentDetails",
                 playlistId = playlist_id,
@@ -49,7 +60,8 @@ def get_titles(playlist_id, pl_titles):
     
     return pl_titles
 
-def get_playlist_title(playlist_id):
+def get_playlist_title(playlist_id: str) -> str:
+    
     request = youtube.playlists().list(
         part="snippet,contentDetails",
         id= playlist_id,
@@ -58,15 +70,27 @@ def get_playlist_title(playlist_id):
     pl_title = response['items'][0]['snippet']['title']
     return pl_title
 
-titles = []
+def main() -> None:
+    """Runs main code to let user pick playlist and save it"""
 
-titles = get_titles(playlist, titles)
-pl_title = get_playlist_title(playlist)
-print(f'You just saved the playlist: "{pl_title}" to a text file')
+    choose_dir()
 
+    playlist_input = input("Enter a YouTube Playlist: ")
+    playlist = playlist_input[38:] #trims url, so that only playlist id remains
+    print("\nPlaylist id: {}".format(playlist) + "\n")
 
+    titles = []
 
-outputfile = pl_title + " " + dt_string +".txt"
-with open(outputfile, 'w', encoding="utf-8") as f:
-    for video in titles:
-        f.write(video + "\n")
+    titles = get_titles(playlist, titles)
+    pl_title = get_playlist_title(playlist)
+    print(f'You just saved the playlist: "{pl_title}" to a text file')
+
+    outputfile = pl_title + " " + dt_string +".txt"
+    with open(outputfile, 'w', encoding="utf-8") as f:
+        for video in titles:
+            f.write(video + "\n")
+
+    exit = input("Press any key to exit")
+
+if __name__ == "__main__":
+    main()    
