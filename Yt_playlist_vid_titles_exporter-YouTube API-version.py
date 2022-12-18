@@ -61,6 +61,7 @@ def get_titles(playlist_id: str, pl_titles: list) -> list:
     return pl_titles
 
 def get_playlist_title(playlist_id: str) -> str:
+    """As function name says. Gets playlist's title"""
     
     request = youtube.playlists().list(
         part="snippet,contentDetails",
