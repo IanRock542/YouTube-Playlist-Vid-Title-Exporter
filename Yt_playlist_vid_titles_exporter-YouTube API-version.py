@@ -13,15 +13,15 @@ def choose_dir() -> None:
     print("Choose the directory to save the text file to.")
     try:
         os.chdir(filedialog.askdirectory())
-    except OSError: #except for user not picking a directory
+    except OSError: # exception for user not picking a directory
         dir = os.getcwd()
         print("No directory chosen. Saving to current working directory: {0}".format(dir))
 
-api_key = os.environ.get('GOOGLE_API_KEY') #api key hidden in enviroment var
-youtube = build('youtube', 'v3', developerKey=api_key) #sets yt api version
+api_key = os.environ.get('GOOGLE_API_KEY') # api key hidden in enviroment var
+youtube = build('youtube', 'v3', developerKey=api_key) # sets yt api version
 
 
-now = datetime.now() #time string to differntiate between playlists with the same title
+now = datetime.now() # time string to differntiate between playlists with the same title
 dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
 
 
@@ -42,12 +42,12 @@ def get_titles(playlist_id: str, pl_titles: list) -> list:
         print("You did not enter a valid playlist.")
         exit(0)
     else:
-        for video in range(len(response['items'])): #items = videos in playlist
+        for video in range(len(response['items'])): # items = videos in playlist
             pl_titles.append((response['items'][video]['snippet']['title']))
     
-        nextPageToken = response.get('nextPageToken') #goes to next page of videos
+        nextPageToken = response.get('nextPageToken') # goes to next page of videos
 
-        while nextPageToken: #runs until there are no more pages to loop through
+        while nextPageToken: # runs until there are no more pages to loop through
             response = youtube.playlistItems().list(
                 part="snippet,contentDetails",
                 playlistId = playlist_id,
@@ -77,7 +77,7 @@ def main() -> None:
     choose_dir()
 
     playlist_input = input("Enter a YouTube Playlist: ")
-    playlist = playlist_input[38:] #trims url, so that only playlist id remains
+    playlist = playlist_input[38:] #t rims url, so that only playlist id remains
     print("\nPlaylist id: {}".format(playlist) + "\n")
 
     titles = []

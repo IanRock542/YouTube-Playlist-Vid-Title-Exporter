@@ -1,3 +1,7 @@
 __pycache_
 *.txt
 !requirements.txt
+bin
+lib
+pyvenv.cfg
+YouTube-Playlist-Vid-Title-Exporter

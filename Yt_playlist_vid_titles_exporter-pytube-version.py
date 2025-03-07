@@ -10,11 +10,11 @@ def choose_dir() -> None:
     print("Choose the directory to save the text file to.")
     try:
         os.chdir(filedialog.askdirectory())
-    except OSError: #except for user not picking a directory
+    except OSError: # exception for user not picking a directory
         dir = os.getcwd()
         print("No directory chosen. Saving to current working directory: {0}".format(dir))
 
-now = datetime.now()  #time string to differntiate between playlists with the same title
+now = datetime.now()  # time string to differntiate between playlists with the same title
 dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
 
 def main() ->None:
