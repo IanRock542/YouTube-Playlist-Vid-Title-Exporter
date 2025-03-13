@@ -8,15 +8,8 @@ from tkinter import filedialog
 import googleapiclient.errors
 import os
 
-def choose_dir() -> None:
-    """Lets user pick dir to save file to"""
+app = Flask(__name__)
 
-    print("Choose the directory to save the text file to.")
-    try:
-        os.chdir(filedialog.askdirectory())
-    except OSError: # exception for user not picking a directory
-        dir = os.getcwd()
-        print("No directory chosen. Saving to current working directory: {0}".format(dir))
 
 api_key = os.environ.get('GOOGLE_API_KEY') # api key hidden in enviroment var
 youtube = build('youtube', 'v3', developerKey=api_key) # sets yt api version
@@ -24,10 +17,6 @@ youtube = build('youtube', 'v3', developerKey=api_key) # sets yt api version
 
 now = datetime.now() # time string to differntiate between playlists with the same title
 dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
-
-
-
-
 
 def get_titles(playlist_id: str, pl_titles: list) -> list:
     """Gets video titles from a playlist and returns them in a list var"""
