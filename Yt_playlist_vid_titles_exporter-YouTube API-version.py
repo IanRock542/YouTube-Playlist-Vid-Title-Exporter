@@ -48,15 +48,15 @@ def get_titles(playlist_id: str, pl_titles: list) -> list:
     return pl_titles
 
 def get_playlist_title(playlist_id: str) -> str:
-    """As function name says. Gets playlist's title"""
+    """Gets playlist's title"""
     
     request = youtube.playlists().list(
         part="snippet,contentDetails",
-        id= playlist_id,
+        id=playlist_id,
     )
     response = request.execute()
-    pl_title = response['items'][0]['snippet']['title']
-    return pl_title
+    if response.get('items'):
+        return response['items'][0]['snippet']['title']
 
 def main() -> None:
     """Runs main code to let user pick playlist and save it"""
