@@ -28,8 +28,9 @@ dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
 
 
 
-def get_titles(playlist_id: str, pl_titles: list) -> list:
+def get_titles(playlist_id: str) -> list:
     """Gets video titles from a playlist and returns them in a list var"""
+    pl_titles = []
     try:
         request = youtube.playlistItems().list(
             part="snippet,contentDetails",
@@ -80,9 +81,7 @@ def main() -> None:
     playlist = playlist_input[38:] #t rims url, so that only playlist id remains
     print("\nPlaylist id: {}".format(playlist) + "\n")
 
-    titles = []
-
-    titles = get_titles(playlist, titles)
+    titles = get_titles(playlist)
     pl_title = get_playlist_title(playlist)
     print(f'You just saved the playlist: "{pl_title}" to a text file')
 
