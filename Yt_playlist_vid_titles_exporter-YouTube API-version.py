@@ -17,8 +17,9 @@ youtube = build('youtube', 'v3', developerKey=api_key) # sets yt api version
 now = datetime.now() # time string to differntiate between playlists with the same title
 dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
 
-def get_titles(playlist_id: str, pl_titles: list) -> list:
+def get_titles(playlist_id: str) -> list:
     """Gets video titles from a playlist and returns them in a list var"""
+    pl_titles = []
     try:
         request = youtube.playlistItems().list(
             part="snippet,contentDetails",
@@ -80,12 +81,11 @@ def get_playlist_title(playlist_id: str) -> str:
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    titles = []
     if request.method == 'POST':
         playlist_url = request.form['playlist_url']
         if "list=" in playlist_url:
             playlist_id =  playlist_url[38:] # Extract playlist ID
-            titles = get_titles(playlist_id, titles)
+            titles = get_titles(playlist_id)
             playlist_title = get_playlist_title(playlist_id)
 
             if titles:
