@@ -8,14 +8,16 @@ from tkinter import filedialog
 import googleapiclient.errors
 import os
 
+from urllib.parse import urlparse, parse_qs # For robust URL parsing
+
 app = Flask(__name__)
 
 
 api_key = os.environ.get('GOOGLE_API_KEY') # api key hidden in enviroment var
 youtube = build('youtube', 'v3', developerKey=api_key) # sets yt api version
 
-now = datetime.now() # time string to differntiate between playlists with the same title
-dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
+#now = datetime.now() # time string to differntiate between playlists with the same title
+#dt_string = now.strftime("%m-%d-%Y %H-%M-%S")
 
 def get_titles(playlist_id: str) -> list:
     """Gets video titles from a playlist and returns them in a list var"""
@@ -23,28 +25,37 @@ def get_titles(playlist_id: str) -> list:
     try:
         request = youtube.playlistItems().list(
             part="snippet,contentDetails",
-            maxResults=500,
+            maxResults=50,
             playlistId= playlist_id
         )
         response = request.execute()
 
-        while request:
-            for video in range(len(response['items'])): # items = videos in playlist
-                pl_titles.append((response['items'][video]['snippet']['title']))
+        while True:
+            for item in response['items']:
+                pl_titles.append(item['snippet']['title'])
         
             nextPageToken = response.get('nextPageToken') # goes to next page of videos
+            
+            if not nextPageToken: # If no next page token, we're done
+                break
 
-            while nextPageToken: # runs until there are no more pages to loop through
-                response = youtube.playlistItems().list(
-                    part="snippet,contentDetails",
-                    playlistId = playlist_id,
-                    pageToken = nextPageToken
-                ).execute()
-                for video in range(len(response['items'])):
-                    pl_titles.append((response['items'][video]['snippet']['title']))
-                nextPageToken = response.get('nextPageToken')
-    except googleapiclient.errors.HttpError or IndexError as e:
-        print("You did not enter a valid playlist.")
+            #response = youtube.playlistItems().list(
+            #    part="snippet",
+            #    maxResults=50,
+            #    playlistId = playlist_id,
+            #    pageToken = nextPageToken
+            #).execute()
+            #response = request.execute()
+
+    except googleapiclient.errors.HttpError as e: # Catch specific HTTP errors
+        print(f"HTTP Error: {e}")
+        # Consider logging the error for debugging, e.g., sentry_sdk.capture_exception(e)
+        return None
+    except IndexError as e: # Catch IndexError for cases like invalid playlist structure
+        print(f"Index Error: {e}")
+        return None
+    except Exception as e: # Catch any other unexpected errors
+        print(f"An unexpected error occurred: {e}")
         return None
     return pl_titles
 
@@ -89,7 +100,7 @@ def index():
             playlist_title = get_playlist_title(playlist_id)
 
             if titles:
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 filename = f"{playlist_title}_{timestamp}.txt"
                 filepath = os.path.join("downloads", filename)
 
